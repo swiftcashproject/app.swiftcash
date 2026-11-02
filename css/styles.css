@@ -903,7 +903,7 @@ button {
     display: inline-block;
     margin-right: 0.3em;
     position: relative;
-    top: -0.05em;
+    top: -0.06em;
 }
 
 .coin-name:nth-child(1) { animation-delay: 0s; }
