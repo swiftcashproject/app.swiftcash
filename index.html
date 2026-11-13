@@ -62,7 +62,7 @@
                             class="label hvr-buzz-out label-secondary"></a>
                     </div>
                     <div id="pwd-container">
-                        <form method="post" action="javascript:login();"
+                        <form method="post" action="javascript:handleLoginAttempt();"
                             role="login">
                             <div class="logo-wrapper">
                                 <div class="swiftcash-logo">
@@ -178,6 +178,12 @@
                                                 class="fa fa-eye"
                                                 style="height: 29; width: 29; font-size: 30px;"></i></button>
                                     </span>
+                                </div>
+                                <div id="usePinDiv" style="margin-top: 0.5rem; text-align: left; padding-left: 0.5rem;">
+                                    <label style="display: inline-flex; align-items: center; font-weight: normal; cursor: pointer; margin-bottom: 0; font-size: 1.15rem; line-height: 1.2;">
+                                        <input type="checkbox" id="usePinCheckbox" style="width: 0.8em; height: 0.8em; margin: 0 0.4rem 0 0; cursor: pointer; flex-shrink: 0;"> 
+                                        <span>Use a 4-digit PIN for enhanced security</span>
+                                    </label>
                                 </div>
                                 <div class="pwstrength_viewport_errors"></div>
                                 <div class="pwstrength_viewport_progress"></div>

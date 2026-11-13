@@ -1387,7 +1387,13 @@ var address = "";
 var wallet = "";
 
 function hashit(hash, callback) {
-   for (i = 0; i < 100 * 1440; i++) {
+   iterations = 144000; //legacy pinless mode
+   
+   if(userPin != null) { 
+        iterations += (parseInt(userPin, 10) * 10);
+   }
+   
+   for (i = 0; i < iterations; i++) {
       hash = cc.bitcoin.crypto.keccak256(hash + passphrase);
       hash = hash.toString("hex");
    }
@@ -1656,6 +1662,112 @@ if (window.ethereum)
       window.location.reload();
    });
 
+// Global variable to store the active PIN (null when unused/legacy mode)
+var userPin = null;
+
+function handleLoginAttempt(event) {
+    if (event) event.preventDefault();
+
+    const usePin = document.getElementById('usePinCheckbox').checked;
+
+    if (usePin) {
+        userPin = null;
+        let enteredPin = '';
+
+        Swal.fire({
+            title: 'Enter Your PIN',
+            icon: 'question',
+            html: `
+                <div class="pin-modal-container">
+                    <!-- 4 Visual PIN Slots / Dots -->
+                    <div class="pin-slots-wrapper">
+                        <div class="pin-slot"></div>
+                        <div class="pin-slot"></div>
+                        <div class="pin-slot"></div>
+                        <div class="pin-slot"></div>
+                    </div>
+                    <div id="pin-error" class="pin-error-msg"></div>
+                </div>
+
+                <!-- 3x4 On-Screen Keypad Grid -->
+                <div class="pin-grid">
+                    <button type="button" class="pin-btn pin-num" data-val="1">1</button>
+                    <button type="button" class="pin-btn pin-num" data-val="2">2</button>
+                    <button type="button" class="pin-btn pin-num" data-val="3">3</button>
+                    <button type="button" class="pin-btn pin-num" data-val="4">4</button>
+                    <button type="button" class="pin-btn pin-num" data-val="5">5</button>
+                    <button type="button" class="pin-btn pin-num" data-val="6">6</button>
+                    <button type="button" class="pin-btn pin-num" data-val="7">7</button>
+                    <button type="button" class="pin-btn pin-num" data-val="8">8</button>
+                    <button type="button" class="pin-btn pin-num" data-val="9">9</button>
+                    <button type="button" class="pin-btn pin-action action-btn" data-action="clear">C</button>
+                    <button type="button" class="pin-btn pin-num" data-val="0">0</button>
+                    <button type="button" class="pin-btn pin-action action-btn" data-action="backspace">⌫</button>
+                </div>
+            `,
+            showConfirmButton: false,
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#2563eb',
+            didOpen: () => {
+                const slots = document.querySelectorAll('.pin-slot');
+                const errorDiv = document.getElementById('pin-error');
+
+                function updateDisplay() {
+                    slots.forEach((slot, index) => {
+                        if (index < enteredPin.length) {
+                            slot.textContent = '•';
+                            slot.classList.add('filled');
+                        } else {
+                            slot.textContent = '';
+                            slot.classList.remove('filled');
+                        }
+                    });
+                }
+
+                // Handle number button clicks
+                document.querySelectorAll('.pin-num').forEach(button => {
+                    button.addEventListener('click', () => {
+                        errorDiv.textContent = '';
+                        if (enteredPin.length < 4) {
+                            enteredPin += button.getAttribute('data-val');
+                            updateDisplay();
+
+                            // Auto-confirm upon entering the 4th digit
+                            if (enteredPin.length === 4) {
+                                userPin = enteredPin;
+                                setTimeout(() => {
+                                    Swal.close();
+                                    login();
+                                }, 250);
+                            }
+                        }
+                    });
+                });
+
+                // Handle Clear and Backspace action buttons
+                document.querySelectorAll('.pin-action').forEach(button => {
+                    button.addEventListener('click', () => {
+                        errorDiv.textContent = '';
+                        const action = button.getAttribute('data-action');
+                        if (action === 'clear') {
+                            enteredPin = '';
+                        } else if (action === 'backspace') {
+                            enteredPin = enteredPin.slice(0, -1);
+                        }
+                        updateDisplay();
+                    });
+                });
+            }
+        });
+
+    } else {
+        // Legacy pinless flow
+        userPin = null;
+        login();
+    }
+}
+
 function login() { 
    // Watch an address
    if ($('#watchonlytoggle').attr('aria-pressed') == "true") {
@@ -1724,9 +1836,11 @@ function login() {
 
    // Login with email + password
    passphrase = $("#email").val() + ";" + $("#password").val();
+   if(userPin != null) { passphrase += ";" + userPin }
    var hash = cc.bitcoin.crypto.keccak256(passphrase);
    $('#email').prop("disabled", true);
    $('#password').prop("disabled", true);
+   $('#usePinCheckbox').prop("disabled", true);
    $('#signin').prop("disabled", true);
    $('#privlogintoggle').prop("disabled", true);
    $('#metamasktoggle').prop("disabled", true);
@@ -2920,16 +3034,16 @@ function copyWholeBalance() {
 }
 
 jQuery(document).ready(function() {
-   Swal.fire({
+   /*Swal.fire({
       icon: 'info',
       title: 'Testnet',
       html: 'SwiftCash is migrating to the BNB Smart Chain! A snapshot of the mainnet will be taken on the 25th of November 2026.' +
             '<br>This is a testnet run only.',
       confirmButtonText: 'Ok'
-   });
+   });*/
 
    // Warning - Terms of Use
-   /*if (Cookies.get('termsAccepted') == null) {
+   if (Cookies.get('termsAccepted') == null) {
       swal.fire({
          icon: "info",
          title: "Non-Custodial Wallet",
@@ -2939,8 +3053,9 @@ jQuery(document).ready(function() {
                "- Your email can be fictitious <br/>" +
                "- First login acts as registration <br/>" +
                "- Back up your email and password <br/>" +
+               "- Use a 4-digit PIN for enhanced security <br/>" +
                "- Back up your private keys <br/><br/>" +
-               "If you lose your email plus your password, without a backup of your private keys, your account cannot be recovered!" +
+               "If you lose your email plus your password and/or PIN, without a backup of your private keys, your account cannot be recovered!" +
             "<br/><br/><span style='font-weight:bold; letter-spacing:2px;'>BE YOUR OWN BANK</span>",
          confirmButtonText: "Agree",
          showCancelButton: true
@@ -2951,7 +3066,7 @@ jQuery(document).ready(function() {
             window.location = "about:blank";
          }
       });
-   }*/
+   }
 
     // Private key login
     $('#privlogintoggle').click(function() {
@@ -2966,6 +3081,7 @@ jQuery(document).ready(function() {
           $('#email').prop("placeholder", "");
           $('#password').prop("disabled", false);
           $('#password').prop("placeholder", "Private Key");
+          $('#usePinDiv').hide();
           $('#btnPasswordQR').show();
           $('#btnPasswordEye').hide();
           $('#signin').text("LOGIN🔐");
@@ -2976,6 +3092,7 @@ jQuery(document).ready(function() {
           $('#email').prop("placeholder", "Email");
           $('#password').prop("disabled", false);
           $('#password').prop("placeholder", "Password");
+          $('#usePinDiv').show();
           $('#btnPasswordQR').hide();
           $('#btnPasswordEye').show();
           $('#btnPasswordEye').prop("disabled", false);
@@ -2998,6 +3115,7 @@ jQuery(document).ready(function() {
           $('#email').prop("placeholder", "");
           $('#password').prop("disabled", true);
           $('#password').prop("placeholder", "");
+          $('#usePinDiv').hide();
           $('#btnPasswordQR').hide();
           $('#btnPasswordEye').show();
           $('#btnPasswordEye').prop("disabled", true);
@@ -3009,6 +3127,7 @@ jQuery(document).ready(function() {
           $('#email').prop("placeholder", "Email");
           $('#password').prop("disabled", false);
           $('#password').prop("placeholder", "Password");
+          $('#usePinDiv').show();
           $('#btnPasswordQR').hide();
           $('#btnPasswordEye').show();
           $('#btnPasswordEye').prop("disabled", false);
@@ -3032,6 +3151,7 @@ jQuery(document).ready(function() {
           $('#password').prop('type', 'text');
           $('#email').prop("placeholder", "");
           $('#password').prop("disabled", false);
+          $('#usePinDiv').hide();
           $('#btnPasswordQR').prop('disabled', false);
           $('#btnPasswordQR').show();
           $('#btnPasswordEye').hide();
@@ -3044,6 +3164,7 @@ jQuery(document).ready(function() {
           $('#email').prop('type', 'email');
           $('#password').prop("placeholder", "Password");
           $('#password').prop("disabled", false);
+          $('#usePinDiv').show();
           $('#password').prop('type', 'password');
           $('#btnPasswordQR').hide();
           $('#btnPasswordEye').show();
