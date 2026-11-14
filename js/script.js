@@ -28,7 +28,7 @@ var PARAMS = {
       explorer: 'https://testnet.bscscan.com/',
       symbol: 'SWIFT',
       name: 'SwiftCash',
-      image: 'https://app.swiftcash.cc/images/swiftcsh.png'
+      image: 'https://app.swiftcash.cc/images/swiftcash.png'
    },
    
    'USDT': {
@@ -46,7 +46,7 @@ var PARAMS = {
       explorer: 'https://testnet.bscscan.com/',
       symbol: 'USDT',
       name: 'Tether',
-      image: 'https://app.swiftcash.cc/images/Tether.png'
+      image: 'https://app.swiftcash.cc/images/tether.png'
    },
 
    'BTC': {
@@ -835,7 +835,7 @@ async function gasTopup() {
    if (bnbBalance >= (gasTopUpAmount / 10n)) {
 
       Swal.fire({
-         icon: "info",
+         icon: "error",
          title: "Gas Top-Up Request",
          text: "You can only request a top-up if your BNB balance is less than " + (params.gasTopUp / 10).toString() + "."
       });
@@ -1665,12 +1665,27 @@ if (window.ethereum)
 // Global variable to store the active PIN (null when unused/legacy mode)
 var userPin = null;
 
+function handlePINToggle(checkbox) {
+  if (!checkbox.checked) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Disable 4-Digit PIN?',
+      text: 'Using a 4-digit PIN adds an extra layer of protection by salting your email and password and increasing the hash iterations, giving your private key greater entropy and making brute-force attacks more difficult. Only turn this off to access an older wallet.',
+      showCancelButton: true,
+      confirmButtonText: 'Disable',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        checkbox.checked = true;
+      }
+    });
+  }
+}
+
 function handleLoginAttempt(event) {
     if (event) event.preventDefault();
 
-    const usePin = document.getElementById('usePinCheckbox').checked;
-
-    if (usePin) {
+    if ($('#usePinCheckbox').is(":visible") && $('#usePinCheckbox').is(":checked")) {
         userPin = null;
         let enteredPin = '';
 
@@ -1848,10 +1863,18 @@ function login() {
    $("#login-loader").show();
    $("form[role='login']").click();
    setTimeout(hashit, 1000, hash.toString("hex"), function(hashed) {
-      var d = new cc.bigi.fromBuffer(hashed);
+      var d = null;
+      if(userPin == null) {
+        //old quirky way - for backward compatibility only
+        d = new cc.bigi.fromBuffer(hashed);
+      } else { 
+        d = new cc.bigi(hashed, 16);
+      }
+      
       keyPair = new PARAMS[CURRENT_COIN].coinjs.ECPair(d, null, {
          network: PARAMS[CURRENT_COIN].network
       });
+      
       loadAddress();
       switchCoin(CURRENT_COIN);
    });
@@ -1860,7 +1883,7 @@ function login() {
 function loadAddress() {
    if (!METAMASK_MODE && !WATCHONLY_MODE) {
       if (PARAMS[CURRENT_COIN].isERC20) {
-         const rawPrivateKey = keyPair.d.toBuffer(32).toString('hex');
+         const rawPrivateKey = keyPair.d.toHex(32);
          wallet = new ethers.Wallet("0x" + rawPrivateKey);
          address = wallet.address;
       } else {
@@ -1874,27 +1897,45 @@ function loadAddress() {
    $("#addr-balance").css("color", "#74bed8");
    $("#pwd-container").hide();
    $("#addr-container").show();
-   $("#addr-qr").attr("src", getAddressQR());
    $("#addr-qr").attr("alt", address);
    $("#addr-id-clipboard").attr("data-clipboard-text", address);
    $("#addr-id").attr("href", PARAMS[CURRENT_COIN].explorer + "address/" + address);
    $("#addr-id").html(address);
    changeAddress = address;
+   loadAddressQR();
    refresh();
 }
 
-function getAddressQR() {    
-    const qrUrl = new URL("https://qrcodeengine.app/api/v1/qr.svg");
+// Initialize the styled QR generator instance
+const walletQr = new QRCodeStyling({
+    width: 175,
+    height: 175,
+    type: "svg",
+    data: "SWIFT",
+    qrOptions: { errorCorrectionLevel: "H", typeNumber: 5 },
+    dotsOptions: { type: "rounded" },
+    cornersSquareOptions: { type: "extra-rounded" },
+    cornersDotOptions: { type: "dot" },
+    backgroundOptions: { color: "#ffffff" }
+});
 
-    qrUrl.searchParams.set("data", address);
-    qrUrl.searchParams.set("body", "rounded");
-    qrUrl.searchParams.set("eyeFrame", "rounded");
-    qrUrl.searchParams.set("eyeBall", "circle");
-    qrUrl.searchParams.set("fg", PARAMS[CURRENT_COIN].qrColor.replace("#", ""));
-    qrUrl.searchParams.set("bg", "#ffffff");
-    qrUrl.searchParams.set("ec", "H");
+// Attach it to your container once the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const qrContainer = document.getElementById('addr-qr');
+    if (qrContainer) {
+        walletQr.append(qrContainer);
+    }
+});
 
-    return qrUrl.toString();
+function loadAddressQR() {
+    const coinColor = "#" + PARAMS[CURRENT_COIN].qrColor;
+    
+    walletQr.update({
+        data: address,
+        dotsOptions: { color: coinColor, type: "rounded" },
+        cornersSquareOptions: { color: coinColor, type: "extra-rounded" },
+        cornersDotOptions: { color: coinColor, type: "dot" }
+    });
 }
 
 var USD = false;
@@ -2216,7 +2257,7 @@ function copyPrivateKey() {
          if (result.value == 'Yes') {
             try {
                if (PARAMS[CURRENT_COIN].isERC20) {
-                  Clipboard.copy(keyPair.d.toBuffer(32).toString('hex'));
+                  Clipboard.copy(keyPair.d.toHex(32));
                } else {
                   Clipboard.copy(keyPair.toWIF());
                }
@@ -3034,28 +3075,20 @@ function copyWholeBalance() {
 }
 
 jQuery(document).ready(function() {
-   Swal.fire({
-      icon: 'info',
-      title: 'Testnet',
-      html: 'SwiftCash is migrating to the BNB Smart Chain! A snapshot of the mainnet will be taken on the 25th of November 2026.' +
-            '<br>This is a testnet run only.',
-      confirmButtonText: 'Ok'
-   });
-
-   // Warning - Terms of Use
-   /*if (Cookies.get('termsAccepted') == null) {
+   // Info - Terms of Use
+   if (Cookies.get('termsAccepted') == null) {
       swal.fire({
          icon: "info",
          title: "Non-Custodial Wallet",
          customClass: {title: "tou-swal-title"},
          html:
-               "- Private keys never leave the browser <br/>" +
+               "<p style='text-align:left; padding-left:2rem;'>- Private keys never leave the browser <br/>" +
                "- Your email can be fictitious <br/>" +
                "- First login acts as registration <br/>" +
                "- Back up your email and password <br/>" +
                "- Use a 4-digit PIN for enhanced security <br/>" +
-               "- Back up your private keys <br/><br/>" +
-               "If you lose your email plus your password and/or PIN, without a backup of your private keys, your account cannot be recovered!" +
+               "- Back up your private keys </p><br/>" +
+               "If you lose your email, password and/or PIN, without a backup of your private keys, your account cannot be recovered!" +
             "<br/><br/><span style='font-weight:bold; letter-spacing:2px;'>BE YOUR OWN BANK</span>",
          confirmButtonText: "Agree",
          showCancelButton: true
@@ -3066,7 +3099,7 @@ jQuery(document).ready(function() {
             window.location = "about:blank";
          }
       });
-   }*/
+   }
 
     // Private key login
     $('#privlogintoggle').click(function() {
@@ -4024,4 +4057,80 @@ $(document).ready(function() {
     resize();
     requestAnimationFrame(animate);
 })();    
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Top header links
+    document.querySelector('.topHeader a:first-child').addEventListener('click', (e) => { e.preventDefault(); });
+    document.getElementById('APR').addEventListener('click', (e) => { e.preventDefault(); refreshAPR(); });
+
+    // Login Form Submission
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleLoginAttempt();
+    });
+
+    // Password field buttons
+    document.getElementById('btnPasswordQR').addEventListener('click', () => openQrModal('password'));
+    document.getElementById('btnPasswordEye').addEventListener('click', () => eyeFunction('password'));
+    document.getElementById('usePinCheckbox').addEventListener('change', function() { handlePINToggle(this); });
+
+    // Currency Switcher Links
+    document.querySelectorAll('.coin-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchCoin(link.getAttribute('data-coin'));
+        });
+    });
+
+    // Spend form submission & actions
+    document.getElementById('spend-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitAction();
+    });
+
+    document.getElementById('addr-balance-refresh').addEventListener('click', loadAddress);
+    document.getElementById('privatekey-copy').addEventListener('click', copyPrivateKey);
+    document.getElementById('changeaddress-modify').addEventListener('click', modifyTheChangeAddress);
+    document.getElementById('custom-fee').addEventListener('click', changeTheFee);
+    document.getElementById('metamask').addEventListener('click', addToMetamask);
+
+    // Staked & Claim buttons
+    const mintInterestBtn = document.getElementById('mint-interest');
+    if (mintInterestBtn) mintInterestBtn.addEventListener('click', mintInterest);
+
+    const unlockStakeBtn = document.getElementById('unlock-stake');
+    if (unlockStakeBtn) unlockStakeBtn.addEventListener('click', () => {
+        const mainW = document.getElementById('mainW');
+        if (mainW) mainW.click();
+    });
+
+    const claimWrappedBtn = document.getElementById('claim-wrapped');
+    if (claimWrappedBtn) claimWrappedBtn.addEventListener('click', claimWrapped);
+
+    const legacyNextBtn = document.getElementById('legacy-next');
+    if (legacyNextBtn) legacyNextBtn.addEventListener('click', nextLegacy);
+
+    const claimNativeBtn = document.getElementById('claim-native');
+    if (claimNativeBtn) claimNativeBtn.addEventListener('click', claimNative);
+
+    const sendBnbBtn = document.getElementById('send-bnb');
+    if (sendBnbBtn) sendBnbBtn.addEventListener('click', sendBNB);
+
+    const gasTopupBtn = document.getElementById('gas-topup');
+    if (gasTopupBtn) gasTopupBtn.addEventListener('click', gasTopup);
+
+    // QR & Spend inputs
+    document.getElementById('camera').addEventListener('click', () => openQrModal('address'));
+    document.getElementById('sweep').addEventListener('click', copyWholeBalance);
+
+    // Radio button changes (Receive, Send, Deposit, Withdraw, Hike, Cut)
+    document.querySelectorAll('.rsvs-radio').forEach(radio => {
+        radio.addEventListener('change', function() {
+            rsvs(this.value);
+        });
+    });
+
+    // QR Modal close button
+    document.getElementById('closeQrModalBtn').addEventListener('click', closeQrModal);
 });

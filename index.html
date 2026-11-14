@@ -14,11 +14,15 @@
     <!-- JavaScript Libraries -->
     <script src="./js/jquery-3.5.0.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/qrcode-styling.js"></script>
     <script src="./js/sweetalert2.all.min.js"></script>
     <script type="text/javascript" src="./js/instascan.min.js"></script>
     <script src="./js/ethers.min.js"></script>
     <script src="./js/merkle-tree.min.js"></script>
     <script src="./js/clipboard.min.js"></script>
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; connect-src 'self' https://data-seed-prebsc-1-s1.bnbchain.org:8545 https://api.blockcypher.com;">
 
     <!-- CSS Stylesheets -->
     <link href="./css/fontawesome.min.css" rel="stylesheet">
@@ -55,14 +59,14 @@
                 style="display: grid; align-items: center; min-height: 100vh; height: 100vh; padding: 10px;">
                 <section id="form-panel" class="form">
                     <div class="topHeader">
-                        <a href="javascript:void(0);"
+                        <a href="#"
                             class="label hvr-buzz-out label-secondary">Current
                             APR:</a>
-                        <a id="APR" href="javascript:refreshAPR();"
+                        <a id="APR" href="#"
                             class="label hvr-buzz-out label-secondary"></a>
                     </div>
                     <div id="pwd-container">
-                        <form method="post" action="javascript:handleLoginAttempt();"
+                        <form method="post" action="#" id="login-form"
                             role="login">
                             <div class="logo-wrapper">
                                 <div class="swiftcash-logo">
@@ -168,20 +172,18 @@
                                     <span class="input-group-btn">
                                         <button id="btnPasswordQR" class="btn"
                                             style="margin: 0px; display: none;"
-                                            type="button"
-                                            onclick="javascript:openQrModal('password');"><i
+                                            type="button"><i
                                                 class="fa fa-camera"
-                                                style="height: 29; width: 29; font-size: 30px;"></i></button>
+                                                style="height: 29px; width: 29px; font-size: 30px;"></i></button>
                                         <button id="btnPasswordEye" class="btn"
-                                            style="margin: 0px;" type="button"
-                                            onclick="javascript:eyeFunction('password');"><i
+                                            style="margin: 0px;" type="button"><i
                                                 class="fa fa-eye"
-                                                style="height: 29; width: 29; font-size: 30px;"></i></button>
+                                                style="height: 29px; width: 29px; font-size: 30px;"></i></button>
                                     </span>
                                 </div>
                                 <div id="usePinDiv" style="margin-top: 0.5rem; text-align: left; padding-left: 0.5rem;">
                                     <label style="display: inline-flex; align-items: center; font-weight: normal; cursor: pointer; margin-bottom: 0; font-size: 1.15rem; line-height: 1.2;">
-                                        <input type="checkbox" id="usePinCheckbox" style="width: 0.8em; height: 0.8em; margin: 0 0.4rem 0 0; cursor: pointer; flex-shrink: 0;"> 
+                                        <input type="checkbox" id="usePinCheckbox" checked style="width: 0.8em; height: 0.8em; margin: 0 0.4rem 0 0; cursor: pointer; flex-shrink: 0;"> 
                                         <span>Use a 4-digit PIN for enhanced security</span>
                                     </label>
                                 </div>
@@ -220,32 +222,32 @@
                         </form>
                     </div>
                     <div id="addr-container" style="display: none;">
-                        <form method="post" action="javascript:submitAction();"
+                        <form method="post" action="#" id="spend-form"
                             role="spend">
                             <div class="row"
                                 style="display: flex; justify-content: center; align-items: center; margin-bottom: 5px;">
                                 <div title="SwiftCash" data-coin="SWIFT" class="col-md-3 currency-logo">
-                                    <a href="javascript:switchCoin('SWIFT');"><img
+                                    <a href="#" class="coin-link" data-coin="SWIFT"><img
                                             src="./images/swiftcash.png"
                                             class="img-responsive" alt="" /></a>
                                 </div>
                                 <div title="Tether" data-coin="USDT" class="col-md-3 currency-logo"><a
-                                        href="javascript:switchCoin('USDT');"><img
+                                        href="#" class="coin-link" data-coin="USDT"><img
                                             src="./images/tether.png"
                                             class="img-responsive" alt="" /></a>
                                 </div>
                                 <div title="Bitcoin" data-coin="BTC" class="col-md-3 currency-logo"><a
-                                        href="javascript:switchCoin('BTC');"><img
+                                        href="#" class="coin-link" data-coin="BTC"><img
                                             src="./images/bitcoin.png"
                                             class="img-responsive" alt="" /></a>
                                 </div>
                                 <div title="Litecoin" data-coin="LTC" class="col-md-3 currency-logo"><a
-                                        href="javascript:switchCoin('LTC');"><img
+                                        href="#" class="coin-link" data-coin="LTC"><img
                                             src="./images/litecoin.png"
                                             class="img-responsive" alt="" /></a>
                                 </div>
                                 <div title="Dogecoin" data-coin="DOGE" class="col-md-3 currency-logo"><a
-                                        href="javascript:switchCoin('DOGE');"><img
+                                        href="#" class="coin-link" data-coin="DOGE"><img
                                             src="./images/dogecoin.png"
                                             class="img-responsive" alt="" /></a>
                                 </div>
@@ -253,7 +255,7 @@
                             <div class="row">
                                 <div class="alert alert-info fade in"
                                     style="margin-bottom: 0px; padding-left: 5px; padding-right: 5px; font-weight: bold; font-size: 12px;">
-                                    <a href="" target="_blank"
+                                    <a href="#" target="_blank"
                                         style="font-size: 1.0em;"
                                         id="addr-id">SWIFTADDRESS</a>
                                     <button id="addr-id-clipboard" title ="Copy Address" type="button"
@@ -262,7 +264,7 @@
                                         <i class="fa fa-copy"></i>
                                     </button>
                                     <div style="margin-top: 3px;">
-                                        <a href="javascript:togglePrice();"
+                                        <a href="#"
                                             class="label hvr-buzz-out label-primary"
                                             id="addr-balance"
                                             style="vertical-align: middle; font-size: 11.8px; padding: 4.3px;">Balance:
@@ -270,35 +272,30 @@
                                         <button title="Refresh Balance"
                                             id="addr-balance-refresh"
                                             type="button"
-                                            class="btn btn-primary refresh"
-                                            onclick="javascript:loadAddress();">
+                                            class="btn btn-primary refresh">
                                             <i class="fa fa-bolt-lightning"></i>
                                         </button>
                                         <button title="Copy Private Key"
                                             id="privatekey-copy" type="button"
                                             class="btn btn-primary privkey"
-                                            data-placement="bottom"
-                                            onclick="javascript:copyPrivateKey();">
+                                            data-placement="bottom">
                                             <i class="fa fa-key"></i>
                                         </button>
                                         <button title="Custom Change Address"
                                             id="changeaddress-modify"
                                             type="button"
                                             class="btn btn-primary changeaddress"
-                                            data-placement="bottom"
-                                            onclick="javascript:modifyTheChangeAddress();">
-                                            <i class="fa fa-wallet""></i>
-                              </button>
-                              <button title="Custom Transaction Fee" id="custom-fee"
+                                            data-placement="bottom">
+                                            <i class="fa fa-wallet"></i>
+                                        </button>
+                                        <button title="Custom Transaction Fee" id="custom-fee"
                                                 type="button"
-                                                class="btn btn-primary customfee"
-                                                onclick="changeTheFee();">
+                                                class="btn btn-primary customfee">
                                                 <i class="fa fa-pen-to-square"></i>
                                         </button>
                                         <button title="Add to Metamask"
                                             id="metamask" type="button"
-                                            class="btn btn-primary metamask"
-                                            onclick="addToMetamask();">
+                                            class="btn btn-primary metamask">
                                             <i
                                                 class="fa fa-brands fa-ethereum"></i>
                                         </button>
@@ -312,14 +309,12 @@
                                         <button
                                             title="Mint the Accrued Interest"
                                             id="mint-interest" type="button"
-                                            class="btn btn-primary staked"
-                                            onclick="mintInterest();">
+                                            class="btn btn-primary staked">
                                             <i class="fa fa-chart-line"></i>
                                         </button>
                                         <button title="Unlock Your Stake"
                                             id="unlock-stake" type="button"
-                                            class="btn btn-primary staked"
-                                            onclick="$('#mainW').click();">
+                                            class="btn btn-primary staked">
                                             <i class="fa fa-unlock"></i>
                                         </button>
                                     </div>
@@ -333,8 +328,7 @@
                                         <button
                                             title="Claim Your wSWIFT"
                                             id="claim-wrapped" type="button"
-                                            class="btn btn-primary claim"
-                                            onclick="claimWrapped();">
+                                            class="btn btn-primary claim">
                                             <i class="fa fa-unlock-keyhole"
                                                 style="width: 18px;"></i>
                                         </button>
@@ -348,15 +342,13 @@
                                             0.00 LSWIFT</a>
                                         <button title="Show Next"
                                             id="legacy-next" type="button"
-                                            class="btn btn-primary claim"
-                                            onclick="nextLegacy();">
+                                            class="btn btn-primary claim">
                                             <i class="fa fa-forward-step"></i>
                                         </button>
                                         <button
                                             title="Claim Your LSWIFT"
                                             id="claim-native" type="button"
-                                            class="btn btn-primary claim"
-                                            onclick="claimNative();">
+                                            class="btn btn-primary claim">
                                             <i class="fa fa-unlock-keyhole"
                                                 style="width: 18px;"></i>
                                         </button>
@@ -369,23 +361,21 @@
                                             0.0000000000 BNB</a>
                                         <button title="Send BNB" id="send-bnb"
                                             type="button"
-                                            class="btn btn-primary bnb"
-                                            onclick="sendBNB();">
+                                            class="btn btn-primary bnb">
                                             <i
                                                 class="fa fa-money-bill-transfer"></i>
                                         </button>
                                         <button
                                             title="Gas Top-Up Request with SWIFT"
                                             id="gas-topup" type="button"
-                                            class="btn btn-primary bnb"
-                                            onclick="gasTopup();">
+                                            class="btn btn-primary bnb">
                                             <i class="fa fa-fire-burner"></i>
                                         </button>
                                     </div>
                                 </div>
                                 <div id="addr-receive"
                                     style="padding-top: 10px;">
-                                    <img id="addr-qr"
+                                    <div id="addr-qr"
                                         class="img-responsive"
                                         style="border: 1px solid black;"
                                         src="./images/qrloader.gif" alt="" />
@@ -400,10 +390,9 @@
                                             value="" />
                                         <span class="input-group-btn">
                                             <button id="camera" class="btn"
-                                                type="button"
-                                                onclick="javascript:openQrModal('address');"><i
+                                                type="button"><i
                                                     class="fa fa-camera"
-                                                    style="height: 29; width: 29; font-size: 30px;"></i></button>
+                                                    style="height: 29px; width: 29px; font-size: 30px;"></i></button>
                                         </span>
                                     </div>
                                     <div class="input-group">
@@ -416,10 +405,9 @@
                                             placeholder="Amount of SWIFT" />
                                         <span class="input-group-btn">
                                             <button class="btn" type="button"
-                                                id="sweep"
-                                                onclick="javascript:copyWholeBalance();"><i
+                                                id="sweep"><i
                                                     class="fa fa-broom-ball"
-                                                    style="height: 29; width: 29; font-size: 30px;"></i></button>
+                                                    style="height: 29px; width: 29px; font-size: 30px;"></i></button>
                                         </span>
                                     </div>
                                     <button id="submit" type="submit"
@@ -435,7 +423,7 @@
                                             style="font-weight: bold;"
                                             class="btn btn-primary active center-block"><input
                                                 value="R"
-                                                onchange="rsvs(this.value);"
+                                                class="rsvs-radio"
                                                 type="radio">
                                             <i
                                                 class="main-button fa fa-qrcode"></i>
@@ -444,7 +432,7 @@
                                             style="font-weight: bold;"
                                             class="btn btn-primary center-block"><input
                                                 value="S"
-                                                onchange="rsvs(this.value);"
+                                                class="rsvs-radio"
                                                 type="radio">
                                             <i
                                                 class="main-button fa fa-money-bill-transfer"></i>
@@ -453,7 +441,7 @@
                                             style="font-weight: bold;"
                                             class="btn btn-primary center-block"><input
                                                 value="D"
-                                                onchange="rsvs(this.value);"
+                                                class="rsvs-radio"
                                                 type="radio">
                                             <i
                                                 class="main-button fa fa-coins"></i>
@@ -462,7 +450,7 @@
                                             style="font-weight: bold;"
                                             class="btn btn-primary center-block"><input
                                                 value="W"
-                                                onchange="rsvs(this.value);"
+                                                class="rsvs-radio"
                                                 type="radio">
                                             <i
                                                 class="main-button fa fa-vault"></i>
@@ -471,7 +459,7 @@
                                             style="font-weight: bold;"
                                             class="btn btn-primary center-block"><input
                                                 value="H"
-                                                onchange="rsvs(this.value);"
+                                                class="rsvs-radio"
                                                 type="radio">
                                             <i
                                                 class="main-button fa fa-arrow-trend-up"></i>
@@ -480,7 +468,7 @@
                                             style="font-weight: bold;"
                                             class="btn btn-primary center-block"><input
                                                 value="C"
-                                                onchange="rsvs(this.value);"
+                                                class="rsvs-radio"
                                                 type="radio">
                                             <i
                                                 class="main-button fa fa-arrow-trend-down"></i>
@@ -517,7 +505,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary"
                         data-dismiss="modal"
-                        onclick="javascript:closeQrModal();">Close</button>
+                        id="closeQrModalBtn">Close</button>
                 </div>
             </div>
         </div>

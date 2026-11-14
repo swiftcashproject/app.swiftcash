@@ -135,6 +135,12 @@ div:where(.swal2-icon) {
   border-color: #87adbd !important; 
 }
 
+/* 6. Warning Icon: Align border with the inner symbol */
+.swal2-icon.swal2-warning {
+  border: 0.25em solid #f8bb86 !important; /* Or #f8bb86 for a richer orange */
+  border-radius: 50% !important;
+}
+
 /* ==========================================
    SweetAlert2 Custom PIN Keypad Styles
    ========================================== */
@@ -675,12 +681,24 @@ button {
 }
 
 #addr-qr {
-   width: 175px;
-   max-width: 100%;
-   margin: 0 auto;
-   border: 1px solid #c5d0df !important;
-   border-radius: 10px;
-   background: #fff;
+    width: 175px;
+    height: 175px; /* ensure the container has a fixed square dimension */
+    max-width: 100%;
+    margin: 0 auto;
+    border: 1px solid #c5d0df !important;
+    border-radius: 10px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* clips any overflow */
+}
+
+/* Force the library's SVG to fill the container wrapper perfectly */
+#addr-qr svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
 }
 
 #spend-receive {
