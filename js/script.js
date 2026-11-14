@@ -1386,20 +1386,30 @@ var keyPair = "";
 var address = "";
 var wallet = "";
 
-function hashit(hash, callback) {
-   iterations = 144000; //legacy pinless mode
-   
-   if(userPin != null) { 
-        iterations += (parseInt(userPin, 10) * 10);
-   }
-   
-   for (i = 0; i < iterations; i++) {
-      hash = cc.bitcoin.crypto.keccak256(hash + passphrase);
-      hash = hash.toString("hex");
-   }
+async function hashit(hash, callback) {
+    let iterations = 144000; // legacy pinless mode
+    
+    if (typeof userPin !== 'undefined' && userPin != null) { 
+        iterations = 823543 + (parseInt(userPin, 10) * 10); // 7^7 + 10 x PIN
+    }
+    
+    const chunkSize = 1000; // Process 1k hashes per batch
 
-   hashedPass = hash;
-   callback(hash);
+    for (let i = 0; i < iterations; i += chunkSize) {
+        const chunkEnd = Math.min(i + chunkSize, iterations);
+        
+        // Run a batch of heavy hashing
+        for (let j = i; j < chunkEnd; j++) {
+            hash = cc.bitcoin.crypto.keccak256(hash + passphrase);
+            hash = hash.toString("hex");
+        }
+        
+        // Yield control back to the browser so it stays fully responsive
+        await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    let hashedPass = hash;
+    callback(hash);
 }
 
 function switchCoin(whichCoin) {
@@ -1426,6 +1436,7 @@ function switchCoin(whichCoin) {
    $("#addr-qr").attr("src", "./images/qrloader.gif");
    setTimeout(switchCoinNow, 100, whichCoin);
    CURRENT_COIN_FLAG = true;
+   $("#pwd-container").remove();
 }
 
 function switchCoinNow(whichCoin) {
@@ -1505,7 +1516,7 @@ function switchCoinNow(whichCoin) {
 
    $("#address").val("");
    $("#amount").val("");
-   $("#mainR").click();
+   document.getElementById("mainR").click();
 
    loadAddress();
 
@@ -1862,7 +1873,7 @@ function login() {
    $('#watchonlytoggle').prop("disabled", true);
    $("#login-loader").show();
    $("form[role='login']").click();
-   setTimeout(hashit, 1000, hash.toString("hex"), function(hashed) {
+   hashit(hash.toString("hex"), function(hashed) {
       var d = null;
       if(userPin == null) {
         //old quirky way - for backward compatibility only
@@ -1920,8 +1931,9 @@ const walletQr = new QRCodeStyling({
 });
 
 // Attach it to your container once the page loads
-document.addEventListener('DOMContentLoaded', () => {
+$(function() {
     const qrContainer = document.getElementById('addr-qr');
+
     if (qrContainer) {
         walletQr.append(qrContainer);
     }
@@ -4059,7 +4071,9 @@ $(document).ready(function() {
 })();    
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+$(function() {
+        console.log("APPLICATION INITIALIZATION RUNNING");
+
     // Top header links
     document.querySelector('.topHeader a:first-child').addEventListener('click', (e) => { e.preventDefault(); });
     document.getElementById('APR').addEventListener('click', (e) => { e.preventDefault(); refreshAPR(); });
@@ -4125,10 +4139,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sweep').addEventListener('click', copyWholeBalance);
 
     // Radio button changes (Receive, Send, Deposit, Withdraw, Hike, Cut)
-    document.querySelectorAll('.rsvs-radio').forEach(radio => {
-        radio.addEventListener('change', function() {
-            rsvs(this.value);
-        });
+    document.addEventListener('click', function(e) {
+        const label = e.target.closest('label[id^="main"]');
+        if (!label) return;
+
+        const radio = label.querySelector('.rsvs-radio');
+
+        if (radio && radio.checked) {
+            rsvs(radio.value);
+        }
     });
 
     // QR Modal close button
