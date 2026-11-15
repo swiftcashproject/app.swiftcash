@@ -1426,7 +1426,7 @@ function switchCoin(whichCoin) {
    
    if (WATCHONLY_MODE && !WATCHONLY_FLAG) {
        WATCHONLY_FLAG = true;
-   } else if (WATCHONLY_MODE && WATCHONLY_FLAG) {
+   } else if (WATCHONLY_MODE && WATCHONLY_FLAG && !PARAMS[whichCoin].isERC20) {
       alertError(
          "Watch Mode!",
          "This action is not supported in watch mode."
@@ -1437,7 +1437,6 @@ function switchCoin(whichCoin) {
    $("#addr-qr").attr("src", "./images/qrloader.gif");
    setTimeout(switchCoinNow, 100, whichCoin);
    CURRENT_COIN_FLAG = true;
-   $("#pwd-container").remove();
 }
 
 function switchCoinNow(whichCoin) {
@@ -1481,7 +1480,7 @@ function switchCoinNow(whichCoin) {
         $('#mainD, #mainW, #mainH, #mainC').attr('disabled', 'disabled');
       }
       
-      if(whichCoin == 'SWIFT') {
+      if(whichCoin == 'SWIFT' && !WATCHONLY_MODE) {
         $("#gas-topup").show();
       } else {
         $("#divStakedBalance").hide();
@@ -1641,7 +1640,7 @@ async function watchAnAddress() {
 
    const rememberMe = $("#rememberMeCheckbox").is(":checked");
    if(rememberMe) {
-       $("#addr-exit").show();
+       $("#addr-forget").show();
        localStorage.setItem("address", address);
    }
 
@@ -1967,7 +1966,7 @@ var wswiftBalance = 0n;
 var changeAddress = "";
 var utxos = [];
 
-function exit() {
+function forget() {
     localStorage.removeItem("address");
     window.location.reload();
 }
@@ -4116,7 +4115,7 @@ $(function() {
     });
 
     document.getElementById('addr-balance-refresh').addEventListener('click', loadAddress);
-    document.getElementById('addr-exit').addEventListener('click', exit);
+    document.getElementById('addr-forget').addEventListener('click', forget);
     document.getElementById('privatekey-copy').addEventListener('click', copyPrivateKey);
     document.getElementById('changeaddress-modify').addEventListener('click', modifyTheChangeAddress);
     document.getElementById('custom-fee').addEventListener('click', changeTheFee);
@@ -4165,12 +4164,22 @@ $(function() {
 
     // QR Modal close button
     document.getElementById('closeQrModalBtn').addEventListener('click', closeQrModal);
+});
 
-    const mAddress = localStorage.getItem('address');
+$(function() {
+    
+    var mAddress = null;
+    function checkRememberMe() {
+        mAddress = localStorage.getItem('address');
 
-    if (mAddress !== null) {
-        $("#password").val(mAddress);
-        $("#addr-exit").show();
-        watchAnAddress();
+        if (mAddress !== null) {
+            $('#watchonlytoggle').click();
+            $('#rememberMeCheckbox').click();
+            $("#password").val(mAddress);
+            $("#addr-forget").show();
+        }
     }
+    
+    checkRememberMe();
+    if(mAddress != null) { setTimeout(watchAnAddress, 500); }
 });
