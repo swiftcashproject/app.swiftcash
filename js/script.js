@@ -1392,11 +1392,12 @@ async function hashit(hash, callback) {
     if (typeof userPin !== 'undefined' && userPin != null) { 
         iterations = 823543 + (parseInt(userPin, 10) * 10); // 7^7 + 10 x PIN
     }
-    
+
     const chunkSize = 1000; // Process 1k hashes per batch
 
     for (let i = 0; i < iterations; i += chunkSize) {
         const chunkEnd = Math.min(i + chunkSize, iterations);
+        $('#login-loader .loading-percent').text(((i/iterations)*100).toFixed(0) + '%');
         
         // Run a batch of heavy hashing
         for (let j = i; j < chunkEnd; j++) {
