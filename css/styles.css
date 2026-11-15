@@ -185,7 +185,7 @@ div:where(.swal2-icon) {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
-    max-width: 18rem;
+    max-width: 16rem;
     margin: 0 auto;
 }
 

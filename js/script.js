@@ -1727,9 +1727,9 @@ function handleLoginAttempt(event) {
                     <button type="button" class="pin-btn pin-num" data-val="7">7</button>
                     <button type="button" class="pin-btn pin-num" data-val="8">8</button>
                     <button type="button" class="pin-btn pin-num" data-val="9">9</button>
-                    <button type="button" class="pin-btn pin-action action-btn" data-action="clear">C</button>
+                    <button type="button" class="pin-btn pin-action action-btn" data-action="clear">CLEAR</button>
                     <button type="button" class="pin-btn pin-num" data-val="0">0</button>
-                    <button type="button" class="pin-btn pin-action action-btn" data-action="backspace">⌫</button>
+                    <button type="button" class="pin-btn pin-action action-btn" data-action="backspace">BACK</button>
                 </div>
             `,
             showConfirmButton: false,
