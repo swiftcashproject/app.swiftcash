@@ -4072,8 +4072,6 @@ $(document).ready(function() {
 });
 
 $(function() {
-        console.log("APPLICATION INITIALIZATION RUNNING");
-
     // Top header links
     document.querySelector('.topHeader a:first-child').addEventListener('click', (e) => { e.preventDefault(); });
     document.getElementById('APR').addEventListener('click', (e) => { e.preventDefault(); refreshAPR(); });
