@@ -788,7 +788,7 @@ button {
    left: 0;
    height: 100%;
    background-color: #286fc0;
-   animation: fill-progress 10s linear infinite;
+   animation: fill-progress 20s linear infinite;
    z-index: 2;
    overflow: hidden;
    display: flex;

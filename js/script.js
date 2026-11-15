@@ -1408,7 +1408,7 @@ async function hashit(hash, callback) {
         await new Promise(resolve => setTimeout(resolve, 0));
     }
 
-    let hashedPass = hash;
+    hashedPass = hash;
     callback(hash);
 }
 
@@ -1451,7 +1451,7 @@ function switchCoinNow(whichCoin) {
 
    if (!METAMASK_MODE && !WATCHONLY_MODE) {
       if (whichCoin != loginPrivkey) {
-         // Old buggy way of logging in with a private key
+         // Old quirky way of logging in with a private key
          //var d = new cc.bigi.fromBuffer(hashedPass); //Deprecated
          var d = keyPair.d;
          keyPair = new PARAMS[CURRENT_COIN].coinjs.ECPair(d, null, {
@@ -1681,7 +1681,7 @@ function handlePINToggle(checkbox) {
     Swal.fire({
       icon: 'warning',
       title: 'Disable 4-Digit PIN?',
-      text: 'Using a 4-digit PIN adds an extra layer of protection by salting your email and password and increasing the hash iterations, giving your private key greater entropy and making brute-force attacks more difficult. Only turn this off to access an older wallet.',
+      text: 'Using a 4-digit PIN adds an extra layer of protection by salting your email and password and increasing the hash iterations, giving your private key greater entropy and making brute-force attacks far more difficult. Only turn this off to access an older wallet.',
       showCancelButton: true,
       confirmButtonText: 'Disable',
       cancelButtonText: 'Cancel'
