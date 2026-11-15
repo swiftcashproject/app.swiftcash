@@ -1743,7 +1743,7 @@ function handleLoginAttempt(event) {
                 function updateDisplay() {
                     slots.forEach((slot, index) => {
                         if (index < enteredPin.length) {
-                            slot.textContent = '•';
+                            slot.textContent = '⦿';
                             slot.classList.add('filled');
                         } else {
                             slot.textContent = '';
