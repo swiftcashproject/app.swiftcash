@@ -1639,6 +1639,12 @@ async function watchAnAddress() {
    $('#privatekey-copy, #changeaddress-modify, #custom-fee, #mint-interest, #unlock-stake, #claim-wrapped, #send-bnb, #gas-topup').hide();
    $('#mainS, #mainD, #mainW, #mainH, #mainC').attr('disabled', 'disabled');
 
+   const rememberMe = $("#rememberMeCheckbox").is(":checked");
+   if(rememberMe) {
+       $("#addr-exit").show();
+       localStorage.setItem("address", address);
+   }
+
    await refresh();
    switchCoin(CURRENT_COIN);
 }
@@ -1960,6 +1966,11 @@ var bnbBalance = 0n;
 var wswiftBalance = 0n;
 var changeAddress = "";
 var utxos = [];
+
+function exit() {
+    localStorage.removeItem("address");
+    window.location.reload();
+}
 
 function refresh() {
 
@@ -3089,7 +3100,7 @@ function copyWholeBalance() {
 
 jQuery(document).ready(function() {
    // Info - Terms of Use
-   if (Cookies.get('termsAccepted') == null) {
+   if (Cookies.get('termsAccepted') == null && localStorage.getItem("address") == null) {
       swal.fire({
          icon: "info",
          title: "Non-Custodial Wallet",
@@ -3198,6 +3209,7 @@ jQuery(document).ready(function() {
           $('#email').prop("placeholder", "");
           $('#password').prop("disabled", false);
           $('#usePinDiv').hide();
+          $('#rememberMeDiv').show();
           $('#btnPasswordQR').prop('disabled', false);
           $('#btnPasswordQR').show();
           $('#btnPasswordEye').hide();
@@ -3211,6 +3223,7 @@ jQuery(document).ready(function() {
           $('#password').prop("placeholder", "Password");
           $('#password').prop("disabled", false);
           $('#usePinDiv').show();
+          $('#rememberMeDiv').hide();
           $('#password').prop('type', 'password');
           $('#btnPasswordQR').hide();
           $('#btnPasswordEye').show();
@@ -4103,6 +4116,7 @@ $(function() {
     });
 
     document.getElementById('addr-balance-refresh').addEventListener('click', loadAddress);
+    document.getElementById('addr-exit').addEventListener('click', exit);
     document.getElementById('privatekey-copy').addEventListener('click', copyPrivateKey);
     document.getElementById('changeaddress-modify').addEventListener('click', modifyTheChangeAddress);
     document.getElementById('custom-fee').addEventListener('click', changeTheFee);
@@ -4151,4 +4165,12 @@ $(function() {
 
     // QR Modal close button
     document.getElementById('closeQrModalBtn').addEventListener('click', closeQrModal);
+
+    const mAddress = localStorage.getItem('address');
+
+    if (mAddress !== null) {
+        $("#password").val(mAddress);
+        $("#addr-exit").show();
+        watchAnAddress();
+    }
 });

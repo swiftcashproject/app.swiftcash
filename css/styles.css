@@ -527,12 +527,41 @@ button {
    font-variant-numeric: tabular-nums;
 }
 
+
+/* ==========================================================
+   Checkboxes
+   ========================================================== */
+.checkDiv {
+    margin-top: 0.5rem;
+    text-align: left;
+    padding-left: 0.5rem;
+}
+
+.checkLabel {
+    display: inline-flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-size: 1.15rem;
+    line-height: 1.2;
+}
+
+.checkInput {
+    width: 0.8em;
+    height: 0.8em;
+    margin: 0 0.4rem !important;
+    cursor:pointer;
+    flex-shrink: 0;
+}
+
 /* ==========================================================
    Badges, Tags & Status Classes
    ========================================================== */
 .clipboard,
 .metamask,
 .refresh,
+.exit,
 .privkey,
 .customfee,
 .changeaddress,
