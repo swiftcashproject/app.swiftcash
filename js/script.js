@@ -1683,6 +1683,8 @@ if (window.ethereum)
 var userPin = null;
 
 function handlePINToggle(checkbox) {
+  localStorage.setItem('usePIN', checkbox.checked);
+
   if (!checkbox.checked) {
     Swal.fire({
       icon: 'warning',
@@ -1694,6 +1696,7 @@ function handlePINToggle(checkbox) {
     }).then((result) => {
       if (!result.isConfirmed) {
         checkbox.checked = true;
+        localStorage.setItem('usePIN', true);
       }
     });
   }
@@ -4168,6 +4171,12 @@ $(function() {
 
 $(function() {
     
+    const usePIN = localStorage.getItem('usePIN');
+    
+    if (usePIN !== null) {
+      document.getElementById('usePinCheckbox').checked = usePIN === 'true';
+    }
+
     var mAddress = null;
     function checkRememberMe() {
         mAddress = localStorage.getItem('address');
