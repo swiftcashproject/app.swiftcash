@@ -22,8 +22,20 @@
     <script src="./js/clipboard.min.js"></script>
     
     <!-- Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; connect-src 'self' https://data-seed-prebsc-1-s1.bnbchain.org:8545 https://api.blockcypher.com https://api.blockchair.com;">
-
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        object-src 'none';
+        connect-src
+            'self'
+            https://bsc-dataseed.bnbchain.org
+            https://data-seed-prebsc-1-s1.bnbchain.org:8545
+            https://api.blockcypher.com
+            https://api.blockchair.com;
+    ">
+    
     <!-- CSS Stylesheets -->
     <link href="./css/fontawesome.min.css" rel="stylesheet">
     <link href="./css/bootstrap.min.css" rel="stylesheet">
@@ -221,7 +233,7 @@
                             <div id="login-loader" style="display: none;">
                                 <div class="loading-bar">
                                     <div class="loading-progress"></div>
-                                    <span class="loading-text">GENERATING YOUR PRIVATE KEY => <span class="loading-percent"></span></span>
+                                    <span class="loading-text">GENERATING YOUR PRIVATE KEY . <span class="loading-percent"></span></span>
                                 </div>
                             </div>
                         </form>
