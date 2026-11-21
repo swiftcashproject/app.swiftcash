@@ -1227,7 +1227,7 @@ function alertSuccess(t, m, txHash = "") {
       title: t,
       ...(txHash
          ? {
-              html: m + '<br><br><a href="' + PARAMS[CURRENT_COIN].explorer + 'tx/' + txHash + '" target="_blank" rel="noopener noreferrer">View on Explorer</a>'
+              html: m + '<br><br><a href="' + PARAMS[CURRENT_COIN].explorer + 'tx/' + txHash + '" target="_blank" rel="noopener noreferrer">View on Explorer <i class="fas fa-arrow-up-right-from-square"></i></a>'
            }
          : { text: m })
    });
@@ -4175,6 +4175,8 @@ $(function() {
     
     if (usePIN !== null) {
       document.getElementById('usePinCheckbox').checked = usePIN === 'true';
+    } else {
+      document.getElementById('usePinCheckbox').checked = true;
     }
 
     var mAddress = null;
