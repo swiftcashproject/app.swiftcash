@@ -4201,7 +4201,7 @@ $(function() {
 
 // Private Key - PostMessage
 const approvedOrigins = [
-    "https://swiftcash-dex-v2-biwn.bolt.host/"
+    "https://swiftcash-dex-v2-biwn.bolt.host"
 ];
 
 window.addEventListener("message", function(event) {
@@ -4209,6 +4209,18 @@ window.addEventListener("message", function(event) {
    if (!approvedOrigins.includes(event.origin)) return;
    if (!event.source) return;
    if (!event.data || typeof event.data !== "object") return;
+   
+   if (event.data.type === "SWIFTCASH_CANCEL_REQUEST") {
+       if (
+          pendingKeyRequest &&
+          pendingKeyRequest.requestId === event.data.requestId &&
+          pendingKeyRequest.source === event.source
+       ) {
+          pendingKeyRequest = null;
+       }
+
+       return;
+    }
 
    if (event.data.type !== "SWIFTCASH_REQUEST_KEY") return;
    if (typeof event.data.requestId !== "string") return;
