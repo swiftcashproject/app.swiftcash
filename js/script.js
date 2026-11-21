@@ -1227,7 +1227,7 @@ function alertSuccess(t, m, txHash = "") {
       title: t,
       ...(txHash
          ? {
-              html: m + '<br><br><a href="' + PARAMS[CURRENT_COIN].explorer + 'tx/' + txHash + '" target="_blank" rel="noopener noreferrer">View Transaction</a> <i class="fas fa-arrow-up-right-from-square"></i>'
+              html: m + '<br><br><a href="' + PARAMS[CURRENT_COIN].explorer + 'tx/' + txHash + '" target="_blank" rel="noopener noreferrer">View Transaction <i class="fas fa-arrow-up-right-from-square"></i></a>'
            }
          : { text: m })
    });
