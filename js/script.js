@@ -1385,6 +1385,8 @@ var loginPrivkey = "";
 var keyPair = "";
 var address = "";
 var wallet = "";
+var pendingKeyRequest = null;
+var keyRequestPending = false;
 
 async function hashit(hash, callback) {
     let iterations = 144000; // legacy pinless mode
@@ -1523,6 +1525,8 @@ function switchCoinNow(whichCoin) {
    if (CURRENT_COIN == 'SWIFT') {
       loadClaims();
    }
+   
+   processPendingKeyRequest();
 }
 
 async function connectMetaMask() {
@@ -4200,62 +4204,77 @@ const approvedOrigins = [
     "https://swiftcash-dex-v2-biwn.bolt.host/"
 ];
 
-let keyRequestPending = false;
+window.addEventListener("message", function(event) {
 
-window.addEventListener("message", function (event) {
-    if (!approvedOrigins.includes(event.origin)) return;
-    if (!event.source) return;
-    if (!event.data || typeof event.data !== "object") return;
+   if (!approvedOrigins.includes(event.origin)) return;
+   if (!event.source) return;
+   if (!event.data || typeof event.data !== "object") return;
 
-    if (event.data.type !== "SWIFTCASH_REQUEST_KEY") return;
-    if (typeof event.data.requestId !== "string" || !event.data.requestId) return;
+   if (event.data.type !== "SWIFTCASH_REQUEST_KEY") return;
+   if (typeof event.data.requestId !== "string") return;
+   if (!event.data.requestId) return;
 
-    if (typeof keyPair === "undefined" || !keyPair) {
-        event.source.postMessage({
-            type: "SWIFTCASH_WALLET_LOCKED",
-            requestId: event.data.requestId
-        }, event.origin);
+   if (pendingKeyRequest || keyRequestPending) return;
 
-        return;
-    }
+   pendingKeyRequest = {
+      source: event.source,
+      origin: event.origin,
+      requestId: event.data.requestId,
+      appName: event.data.appName
+   };
 
-    if (keyRequestPending) return;
-
-    keyRequestPending = true;
-
-    swal.fire({
-        title: "Share Private Key?",
-        text: `${event.data.appName || "Unknown application"} wants access to your wallet's private key. Only approve if you trust this app.`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Approve",
-        cancelButtonText: "Cancel"
-    }).then((result) => {
-        if (!result.isConfirmed) {
-            event.source.postMessage({
-                type: "SWIFTCASH_REQUEST_REJECTED",
-                requestId: event.data.requestId
-            }, event.origin);
-
-            return;
-        }
-
-        if (typeof keyPair === "undefined" || !keyPair) {
-            event.source.postMessage({
-                type: "SWIFTCASH_WALLET_LOCKED",
-                requestId: event.data.requestId
-            }, event.origin);
-
-            return;
-        }
-
-        event.source.postMessage({
-            type: "SWIFTCASH_KEY_RESPONSE",
-            requestId: event.data.requestId,
-            privateKey: keyPair.d.toHex(32)
-        }, event.origin);
-
-    }).finally(() => {
-        keyRequestPending = false;
-    });
+   processPendingKeyRequest();
 });
+
+function processPendingKeyRequest() {
+
+   if (!pendingKeyRequest || keyRequestPending) return;
+
+   if (
+      !keyPair ||
+      !keyPair.d ||
+      typeof keyPair.d.toHex !== "function"
+   ) return;
+
+   var request = pendingKeyRequest;
+   pendingKeyRequest = null;
+   keyRequestPending = true;
+
+   Swal.fire({
+      title: "Share Private Key?",
+      text: (request.appName || "Unknown application") +
+         " wants access to your wallet's private key. Only approve if you trust this app.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Approve",
+      cancelButtonText: "Cancel"
+   }).then(function(result) {
+
+      if (!result.isConfirmed) {
+         request.source.postMessage({
+            type: "SWIFTCASH_REQUEST_REJECTED",
+            requestId: request.requestId
+         }, request.origin);
+
+         return;
+      }
+
+      if (!keyPair || !keyPair.d) {
+         request.source.postMessage({
+            type: "SWIFTCASH_WALLET_LOCKED",
+            requestId: request.requestId
+         }, request.origin);
+
+         return;
+      }
+
+      request.source.postMessage({
+         type: "SWIFTCASH_KEY_RESPONSE",
+         requestId: request.requestId,
+         privateKey: keyPair.d.toHex(32)
+      }, request.origin);
+
+   }).finally(function() {
+      keyRequestPending = false;
+   });
+}
