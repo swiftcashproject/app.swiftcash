@@ -4303,8 +4303,6 @@ function processPendingKeyRequest() {
          privateKey: keyPair.d.toHex(32)
       }, request.origin);
       
-      request.source.focus();
-
    }).finally(function() {
       keyRequestPending = false;
    });
