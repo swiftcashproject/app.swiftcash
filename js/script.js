@@ -4269,7 +4269,7 @@ function processPendingKeyRequest() {
    Swal.fire({
       title: "Private Key Request?!",
       html: (request.appName || "Unknown application") +
-         " wants to access your wallet's private key." +
+         " wants to access your wallet's private key. Double check the app's URL and only approve if you trust this app." +
          "<br><br><strong>" + request.origin + "</strong>",
       icon: "warning",
       showCancelButton: true,
@@ -4302,6 +4302,8 @@ function processPendingKeyRequest() {
          requestId: request.requestId,
          privateKey: keyPair.d.toHex(32)
       }, request.origin);
+      
+      request.source.focus();
 
    }).finally(function() {
       keyRequestPending = false;
