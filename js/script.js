@@ -152,7 +152,6 @@ const ERRORS_ABI = [
    "error NotEligibleToAdjustInterestRate()",
    "error MaximumRateReached()",
    "error MinimumRateReached()",
-   "error UseDepositToStake()",
 
    // Migration errors
    "error InsufficientSwiftReserves()",
@@ -229,9 +228,6 @@ function getCustomErrorMessage(error) {
 
             case "MinimumRateReached":
                return "The minimum interest rate has been reached.";
-
-            case "UseDepositToStake":
-               return "Use deposit() to stake SWIFT.";
 
             case "InsufficientSwiftReserves":
                return "Insufficient SWIFT reserves.";
@@ -2557,6 +2553,21 @@ async function spendERC20() {
          "You do not have enough " + CURRENT_COIN + " to complete this transaction."
       );
       return;
+   }
+   
+   // Warning if toAddress = contract's address
+   if (toAddress == PARAMS[CURRENT_COIN].contract) {
+          const wResult = await Swal.fire({
+          icon: 'warning',
+          title: 'Contract Address!',
+          text: 'You are about to send funds to the contract address. Funds sent directly to the contract address may be permanently lost. Are you sure you want to continue?',
+          showCancelButton: true,
+          confirmButtonText: 'Continue',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#d97706',
+      });
+
+      if (!wResult.isConfirmed) return;
    }
 
    if (!await confirmAction(
