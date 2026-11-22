@@ -1387,6 +1387,7 @@ var address = "";
 var wallet = "";
 var pendingKeyRequest = null;
 var keyRequestPending = false;
+var completedKeyRequests = new Set();
 
 async function hashit(hash, callback) {
     let iterations = 144000; // legacy pinless mode
@@ -1692,7 +1693,7 @@ function handlePINToggle(checkbox) {
   if (!checkbox.checked) {
     Swal.fire({
       icon: 'warning',
-      title: 'Disable 4-Digit PIN?',
+      title: 'Disable 4-Digit PIN?!',
       text: 'Using a 4-digit PIN adds an extra layer of protection by salting your email and password and increasing the hash iterations, giving your private key greater entropy and making brute-force attacks far more difficult. Only turn this off to access an older wallet.',
       showCancelButton: true,
       confirmButtonText: 'Disable',
@@ -4224,6 +4225,7 @@ window.addEventListener("message", function(event) {
 
    if (event.data.type !== "SWIFTCASH_REQUEST_KEY") return;
    if (typeof event.data.requestId !== "string") return;
+   if (completedKeyRequests.has(event.data.requestId)) return;
    if (!event.data.requestId) return;
 
    if (pendingKeyRequest || keyRequestPending) return;
@@ -4241,6 +4243,18 @@ window.addEventListener("message", function(event) {
 function processPendingKeyRequest() {
 
    if (!pendingKeyRequest || keyRequestPending) return;
+   
+   if (WATCHONLY_MODE || METAMASK_MODE) {
+       var request = pendingKeyRequest;
+       pendingKeyRequest = null;
+
+       request.source.postMessage({
+          type: "SWIFTCASH_WALLET_UNSUPPORTED",
+          requestId: request.requestId
+       }, request.origin);
+
+       return;
+    }
 
    if (
       !keyPair ||
@@ -4253,13 +4267,14 @@ function processPendingKeyRequest() {
    keyRequestPending = true;
 
    Swal.fire({
-      title: "Share Private Key?",
-      text: (request.appName || "Unknown application") +
-         " wants access to your wallet's private key. Only approve if you trust this app.",
+      title: "Private Key Request?!",
+      html: (request.appName || "Unknown application") +
+         " wants to access your wallet's private key." +
+         "<br><br><strong>" + request.origin + "</strong>",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Approve",
-      cancelButtonText: "Cancel"
+      confirmButtonText: "Share Private Key",
+      cancelButtonText: "Deny"
    }).then(function(result) {
 
       if (!result.isConfirmed) {
@@ -4280,6 +4295,8 @@ function processPendingKeyRequest() {
          return;
       }
 
+      completedKeyRequests.add(request.requestId);
+      
       request.source.postMessage({
          type: "SWIFTCASH_KEY_RESPONSE",
          requestId: request.requestId,
