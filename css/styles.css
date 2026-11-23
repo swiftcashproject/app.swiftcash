@@ -1392,3 +1392,11 @@ ul.social_icon li a:hover {
     text-align: center;
     margin: 16px 0 0;
 }
+
+#modalQrCode .modal-dialog {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

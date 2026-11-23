@@ -658,7 +658,7 @@ function sendBNB() {
             'step="any" style="width:100%;">' +
 
             '<button class="btn" type="button" id="bnb-max">' +
-            '<i class="fa fa-broom-ball" ' +
+            '<i class="fa fa-wand-magic-sparkles" ' +
             'style="height:27px; width:27px; font-size:30px;"></i>' +
             '</button>' +
 
@@ -679,7 +679,7 @@ function sendBNB() {
 
       didOpen: function() {
 
-         // Live network gas estimation for the broom (max) button
+         // Live network gas estimation for the magic wand (max) button
          $("#bnb-max").on("click", async function() {
             try {
                var feeData = await provider.getFeeData();
@@ -1379,7 +1379,7 @@ $(document).on('shown.bs.modal', '#modalQrCode', function() {
       console.error(e);
       scanner = null;
       $('#modalQrCode').modal('hide');
-      alertError('Unable to access camera.');
+      alertError('No camera found!', 'Attempting to access your camera failed.');
    });
 });
 
