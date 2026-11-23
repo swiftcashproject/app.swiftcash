@@ -1340,16 +1340,27 @@ function openQrModal(param) {
    $('#modalQrCode').modal('show');
 }
 
-$(document).on('hidden.bs.modal', '#modalQrCode', function() {
-   if (scanner && scanner.isScanning) {
-      scanner.stop().then(function() {
-         scanner = null;
-      }).catch(function(e) {
-         console.error(e);
+function stopAndResetScanner() {
+   if (!scanner) return Promise.resolve();
+
+   var activeScanner = scanner;
+   scanner = null;
+
+   if (activeScanner.isScanning) {
+      return activeScanner.stop().then(function() {
+         activeScanner.clear();
+      }).catch(function(err) {
+         console.warn('Error stopping scanner:', err);
+         try { activeScanner.clear(); } catch (e) {}
       });
-   } else {
-      scanner = null;
    }
+
+   try { activeScanner.clear(); } catch (e) {}
+   return Promise.resolve();
+}
+
+$(document).on('hidden.bs.modal', '#modalQrCode', function() {
+   stopAndResetScanner();
 });
 
 $(document).on('shown.bs.modal', '#modalQrCode', function() {
@@ -1364,52 +1375,32 @@ $(document).on('shown.bs.modal', '#modalQrCode', function() {
          fps: 10,
          qrbox: { width: 250, height: 250 },
          videoConstraints: {
-            facingMode: 'environment',
-            focusMode: 'continuous'
+            facingMode: 'environment'
          }
       },
       function(content) {
          if (qrScanHandled) return;
          qrScanHandled = true;
 
-         var activeScanner = scanner;
-         scanner = null;
-
-         activeScanner.stop().then(function() {
-            activeScanner.clear();
-            $('#' + qrIdToFill).val(content).change();
-            $('#modalQrCode').modal('hide');
-         }).catch(function(err) {
-            console.error('Failed to stop scanner:', err);
+         stopAndResetScanner().then(function() {
             $('#' + qrIdToFill).val(content).change();
             $('#modalQrCode').modal('hide');
          });
       },
       function(error) {}
    ).then(function() {
-      if (!scanner) return;
-      scanner.applyVideoConstraints({
-         facingMode: 'environment',
-         focusMode: 'continuous'
+      if (!scanner || !scanner.isScanning) return;
+      return scanner.applyVideoConstraints({
+         advanced: [{ focusMode: 'continuous' }]
       }).catch(function(err) {
-         console.warn('Continuous focus not supported on this device:', err);
+         console.warn('Continuous focus not supported:', err);
       });
    }).catch(function(e) {
-      console.error(e);
+      console.error('Camera start failed:', e);
       scanner = null;
       $('#modalQrCode').modal('hide');
       alertError('No camera found!', 'Attempting to access your camera failed.');
    });
-});
-
-$('#modalQrCode').on('hidden.bs.modal', function() {
-   if (scanner && scanner.isScanning) {
-      scanner.stop().then(function() {
-         scanner = null;
-      });
-   } else {
-      scanner = null;
-   }
 });
 
 function closeQrModal() {
