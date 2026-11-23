@@ -1355,36 +1355,45 @@ $(document).on('hidden.bs.modal', '#modalQrCode', function() {
 $(document).on('shown.bs.modal', '#modalQrCode', function() {
    if (scanner) return;
 
+   qrScanHandled = false;
    scanner = new Html5Qrcode('qrScannerPreview');
 
    scanner.start(
       { facingMode: 'environment' },
       {
          fps: 10,
-         qrbox: { width: 250, height: 250 }
+         qrbox: { width: 250, height: 250 },
+         videoConstraints: {
+            facingMode: 'environment',
+            focusMode: 'continuous'
+         }
       },
       function(content) {
          if (qrScanHandled) return;
          qrScanHandled = true;
 
-         scanner.stop().then(function() {
-            scanner = null;
+         var activeScanner = scanner;
+         scanner = null;
 
+         activeScanner.stop().then(function() {
+            activeScanner.clear();
+            $('#' + qrIdToFill).val(content).change();
+            $('#modalQrCode').modal('hide');
+         }).catch(function(err) {
+            console.error('Failed to stop scanner:', err);
             $('#' + qrIdToFill).val(content).change();
             $('#modalQrCode').modal('hide');
          });
       },
       function(error) {}
    ).then(function() {
-      // Wait briefly for the camera stream to stabilize before applying constraints
-      setTimeout(() => {
-        scanner.applyVideoConstraints({
-          focusMode: "continuous",
-          advanced: [{ zoom: 1.5 }] // Slight zoom forces the camera to refocus and helps with small codes
-        }).catch((err) => {
-          window.alert("Focus/zoom constraints not supported on this device:", err);
-        });
-      }, 1500);
+      if (!scanner) return;
+      scanner.applyVideoConstraints({
+         facingMode: 'environment',
+         focusMode: 'continuous'
+      }).catch(function(err) {
+         console.warn('Continuous focus not supported on this device:', err);
+      });
    }).catch(function(e) {
       console.error(e);
       scanner = null;
