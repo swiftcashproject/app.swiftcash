@@ -1328,3 +1328,67 @@ ul.social_icon li a:hover {
       filter: none;
    }
 }
+
+
+/* QR Scanner Modal */
+.qr-modal-content {
+    background: #0f172a;
+    border: 1px solid #263449;
+    border-radius: 12px;
+    color: #e2e8f0;
+    overflow: hidden;
+}
+
+.qr-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #263449;
+}
+
+.qr-modal-header .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.qr-modal-close {
+    background: none;
+    border: 0;
+    color: #94a3b8;
+    font-size: 26px;
+    line-height: 1;
+    padding: 0;
+}
+
+.qr-modal-close:hover {
+    color: #fff;
+}
+
+.qr-modal-body {
+    padding: 20px;
+}
+
+#qrScannerPreview {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #020617;
+}
+
+#qrScannerPreview video {
+    width: 100% !important;
+    border-radius: 8px;
+}
+
+#qrScannerPreview__scan_region {
+    background: #020617;
+}
+
+.qr-modal-hint {
+    color: #94a3b8;
+    font-size: 13px;
+    text-align: center;
+    margin: 16px 0 0;
+}

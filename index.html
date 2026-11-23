@@ -16,7 +16,7 @@
     <script src="./js/bootstrap.min.js"></script>
     <script src="./js/qrcode-styling.js"></script>
     <script src="./js/sweetalert2.all.min.js"></script>
-    <script type="text/javascript" src="./js/instascan.min.js"></script>
+    <script src="./js/html5-qrcode.min.js"></script>
     <script src="./js/ethers.min.js"></script>
     <script src="./js/merkle-tree.min.js"></script>
     <script src="./js/clipboard.min.js"></script>
@@ -185,7 +185,7 @@
                                         <button id="btnPasswordQR" class="btn"
                                             style="margin: 0px; display: none;"
                                             type="button"><i
-                                                class="fa fa-camera"
+                                                class="fa fa-qrcode"
                                                 style="height: 29px; width: 29px; font-size: 30px;"></i></button>
                                         <button id="btnPasswordEye" class="btn"
                                             style="margin: 0px;" type="button"><i
@@ -415,7 +415,7 @@
                                         <span class="input-group-btn">
                                             <button id="camera" class="btn"
                                                 type="button"><i
-                                                    class="fa fa-camera"
+                                                    class="fa fa-qrcode"
                                                     style="height: 29px; width: 29px; font-size: 30px;"></i></button>
                                         </span>
                                     </div>
@@ -514,26 +514,31 @@
             <div class="col-md-4"></div>
         </div>
     </div>
-    <!-- Qr Scanner Modal -->
+
+    <!-- QR Scanner Modal -->
     <div class="modal fade" id="modalQrCode" tabindex="-1" role="dialog"
         aria-labelledby="modalQrCodeLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalQrCodeLabel"
-                        style="font-weight: bold;">Scan Your QR Code</h5>
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content qr-modal-content">
+                <div class="modal-header qr-modal-header">
+                    <h5 class="modal-title" id="modalQrCodeLabel">
+                        Scan QR Code
+                    </h5>
+                    <button type="button" class="qr-modal-close"
+                        data-dismiss="modal" aria-label="Close">
+                        &times;
+                    </button>
                 </div>
-                <div class="modal-body">
-                    <video id="qrScannerPreview" style="width: 100%;"></video>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary"
-                        data-dismiss="modal"
-                        id="closeQrModalBtn">Close</button>
+                <div class="modal-body qr-modal-body">
+                    <div id="qrScannerPreview"></div>
+                    <p class="qr-modal-hint">
+                        Position the QR code inside the scanning area
+                    </p>
                 </div>
             </div>
         </div>
     </div>
+
 </body>
 
 </html>
