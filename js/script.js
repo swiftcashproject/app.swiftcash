@@ -1331,39 +1331,70 @@ window.Clipboard = (function(window, document, navigator) {
 
 var scanner;
 var qrIdToFill;
+var qrScanHandled = false;
 
 function openQrModal(param) {
    qrIdToFill = param;
-   scanner = new Instascan.Scanner({
-      mirror: false,
-      video: document.getElementById('qrScannerPreview')
-   });
+   qrScanHandled = false;
 
-   scanner.addListener('scan', function(content) {
-      scanner.stop();
-      $('#' + qrIdToFill).val(content);
-      $('#' + qrIdToFill).change();
-      $('#modalQrCode').modal('toggle');
-   });
-
-   Instascan.Camera.getCameras().then(function(cameras) {
-      if (cameras.length > 1) {
-         scanner.start(cameras[1]);
-      } else if (cameras.length > 0) {
-         scanner.start(cameras[0]);
-      } else {
-         $('#modalQrCode').modal('toggle');
-         alertError('No cameras found.');
-      }
-   }).catch(function(e) {
-      console.error(e);
-   });
-
-   $('#modalQrCode').modal('toggle');
+   $('#modalQrCode').modal('show');
 }
 
+$(document).on('hidden.bs.modal', '#modalQrCode', function() {
+   if (scanner && scanner.isScanning) {
+      scanner.stop().then(function() {
+         scanner = null;
+      }).catch(function(e) {
+         console.error(e);
+      });
+   } else {
+      scanner = null;
+   }
+});
+
+$(document).on('shown.bs.modal', '#modalQrCode', function() {
+   if (scanner) return;
+
+   scanner = new Html5Qrcode('qrScannerPreview');
+
+   scanner.start(
+      { facingMode: 'environment' },
+      {
+         fps: 10,
+         qrbox: { width: 250, height: 250 }
+      },
+      function(content) {
+         if (qrScanHandled) return;
+         qrScanHandled = true;
+
+         scanner.stop().then(function() {
+            scanner = null;
+
+            $('#' + qrIdToFill).val(content).change();
+            $('#modalQrCode').modal('hide');
+         });
+      },
+      function(error) {}
+   ).catch(function(e) {
+      console.error(e);
+      scanner = null;
+      $('#modalQrCode').modal('hide');
+      alertError('Unable to access camera.');
+   });
+});
+
+$('#modalQrCode').on('hidden.bs.modal', function() {
+   if (scanner && scanner.isScanning) {
+      scanner.stop().then(function() {
+         scanner = null;
+      });
+   } else {
+      scanner = null;
+   }
+});
+
 function closeQrModal() {
-   scanner.stop();
+   $('#modalQrCode').modal('hide');
 }
 
 function eyeFunction(id) {
@@ -4181,8 +4212,6 @@ $(function() {
         }
     });
 
-    // QR Modal close button
-    document.getElementById('closeQrModalBtn').addEventListener('click', closeQrModal);
 });
 
 $(function() {
