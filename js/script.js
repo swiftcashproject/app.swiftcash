@@ -1376,9 +1376,15 @@ $(document).on('shown.bs.modal', '#modalQrCode', function() {
       },
       function(error) {}
    ).then(function() {
-      return scanner.applyVideoConstraints({
-         focusMode: 'continuous'
-      });
+      // Wait briefly for the camera stream to stabilize before applying constraints
+      setTimeout(() => {
+        scanner.applyVideoConstraints({
+          focusMode: "continuous",
+          advanced: [{ zoom: 1.5 }] // Slight zoom forces the camera to refocus and helps with small codes
+        }).catch((err) => {
+          window.alert("Focus/zoom constraints not supported on this device:", err);
+        });
+      }, 1500);
    }).catch(function(e) {
       console.error(e);
       scanner = null;
