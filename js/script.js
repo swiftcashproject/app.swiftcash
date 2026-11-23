@@ -4345,5 +4345,6 @@ function processPendingKeyRequest() {
       
    }).finally(function() {
       keyRequestPending = false;
+      alertSuccess("Key sent!", "Your private key was successfully sent to " + request.appName + ".")
    });
 }
