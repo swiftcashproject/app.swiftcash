@@ -1375,7 +1375,11 @@ $(document).on('shown.bs.modal', '#modalQrCode', function() {
          });
       },
       function(error) {}
-   ).catch(function(e) {
+   ).then(function() {
+      return scanner.applyVideoConstraints({
+         focusMode: 'continuous'
+      });
+   }).catch(function(e) {
       console.error(e);
       scanner = null;
       $('#modalQrCode').modal('hide');
