@@ -1399,4 +1399,6 @@ ul.social_icon li a:hover {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: calc(100% - 30px);
+    max-width: 400px;
 }
