@@ -264,6 +264,14 @@ function getCustomErrorMessage(error) {
    } catch (e) {
       // Unable to decode custom error
    }
+   
+   if (
+        error.message?.toLowerCase().includes('out of gas') ||
+        error.shortMessage?.toLowerCase().includes('out of gas') ||
+        error.info?.error?.message?.toLowerCase().includes('out of gas')
+    ) {
+        return('Transaction ran out of gas ☹');
+    }
 
    return error.reason || error.message;
 }
