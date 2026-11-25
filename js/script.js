@@ -16,7 +16,7 @@ var PARAMS = {
       contract: '0x7E6FdC9261CF2439700a84E4E5D833cC8AB1D0a2',
       migration: '0xdAFCf510614Ca4738589628031736274FB3286D0',
       wswift: '0x99945f484EBc48F5307cC00cF8dCF8d6D3d4B017',
-      gasStation: '0xBbc6fC2e26dCdf41C6a7bD05ea2D15fdCcF9bDc4',
+      gasStation: '0xF76f592Ce2B6436b49A7bF0dE49E53669e91A48d',
       gasStationEmail: 'info@swiftcash.cc',
       gasTopUp: 0.00025,
       gasTopUpFee: 1000,
