@@ -239,10 +239,10 @@ function getCustomErrorMessage(error) {
                return "Invalid public key length.";
 
             case "AlreadyClaimed":
-               return "This claim has already been claimed.";
+               return "This balance has already been claimed.";
 
             case "ClaimNotYetRedeemable":
-               return "This claim is not yet redeemable.";
+               return "This balance is not yet redeemable.";
 
             case "InvalidMerkleProof":
                return "Invalid Merkle proof.";
