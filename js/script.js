@@ -7,7 +7,7 @@ var WATCHONLY_FLAG = false;
 var PARAMS = {
    'SWIFT': {
       isERC20: true,
-      blockchain: 'BNB Chain',
+      blockchain: 'BNB',
       coingecko: 'swiftcash',
       coinjs: cc.bitcoin,
       network: cc.bitcoin.networks.swiftcash,
@@ -33,7 +33,7 @@ var PARAMS = {
    
    'USDT': {
       isERC20: true,
-      blockchain: 'BNB Chain',
+      blockchain: 'BNB',
       coingecko: 'tether',
       coinjs: cc.bitcoin,
       network: cc.bitcoin.networks.swiftcash,
@@ -268,12 +268,12 @@ function getCustomErrorMessage(error) {
    if (
         error.message?.toLowerCase().includes('out of gas') ||
         error.shortMessage?.toLowerCase().includes('out of gas') ||
-        error.info?.error?.message?.toLowerCase().includes('out of gas')
+        error.info?.error?.reason?.toLowerCase().includes('out of gas')
     ) {
         return('Transaction ran out of gas ☹');
     }
 
-   return error.reason || error.message;
+   return error.reason || error.shortMessage || error.message;
 }
 
 function getSwiftContract(signer) {
